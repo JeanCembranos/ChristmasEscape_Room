@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:christmas_project/MainPage/Desafio2Screen.dart';
+import 'package:christmas_project/MainPage/DesafioCofreCerrado.dart';
 import 'package:christmas_project/MainPage/DesafioScreen.dart';
 import 'package:christmas_project/main.dart';
 import 'package:flutter/material.dart';
@@ -124,10 +125,21 @@ class _HomeState extends State<Home> {
                         ? () {
                           switch (index){
                             case 0:
-                              Navigator.push(
+                             /*Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DesafioScreen(
+                                builder: (context) => Desafio1(
+                                  desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                  totalSeconds: _totalSeconds,
+                                  timer: _timer,
+                                ),
+                              ),
+                            );*/
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>DesafioCofreCerrado(
                                   desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
                                   totalSeconds: _totalSeconds,
