@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:christmas_project/MainPage/Desafio2Screen.dart';
+import 'package:christmas_project/MainPage/DesafioCaminoQR.dart';
 import 'package:christmas_project/MainPage/DesafioCofreCerrado.dart';
+import 'package:christmas_project/MainPage/DesafioOSI.dart';
+import 'package:christmas_project/MainPage/DesafioSQL.dart';
 import 'package:christmas_project/MainPage/DesafioScreen.dart';
 import 'package:christmas_project/main.dart';
 import 'package:flutter/material.dart';
@@ -124,22 +127,11 @@ class _HomeState extends State<Home> {
                     onTap: desafios[index]
                         ? () {
                           switch (index){
-                            case 0:
-                             /*Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Desafio1(
-                                  desafioIndex: index,
-                                  onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
-                                ),
-                              ),
-                            );*/
+                            /*case 0:
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>DesafioCofreCerrado(
+                                builder: (context) => DesafioOSI(
                                   desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
                                   totalSeconds: _totalSeconds,
@@ -151,6 +143,18 @@ class _HomeState extends State<Home> {
                               Navigator.push(
                               context,
                               MaterialPageRoute(
+                                builder: (context) => Desafio1(
+                                  desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                  totalSeconds: _totalSeconds,
+                                  timer: _timer,
+                                ),
+                              ),
+                            );
+                            case 2:
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(
                                 builder: (context) => Desafio2Screen(
                                   desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
@@ -159,8 +163,31 @@ class _HomeState extends State<Home> {
                                 ),
                               ),
                             );
+                            case 3:
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DesafioCofreCerrado(
+                                  desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                  totalSeconds: _totalSeconds,
+                                  timer: _timer,
+                                ),
+                              ),
+                            );*/
+                            case 0:
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DesafioCaminoQR(
+                                 desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                  totalSeconds: _totalSeconds,
+                                  timer: _timer,
+                                ),
+                              ),
+                            ); 
                           }
-                            
                           }
                         : null,
                     child: Column(
