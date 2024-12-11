@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:christmas_project/MainPage/Desafio2Screen.dart';
 import 'package:christmas_project/MainPage/DesafioCaminoQR.dart';
 import 'package:christmas_project/MainPage/DesafioCofreCerrado.dart';
+import 'package:christmas_project/MainPage/DesafioLockScreen.dart';
 import 'package:christmas_project/MainPage/DesafioOSI.dart';
 import 'package:christmas_project/MainPage/DesafioSQL.dart';
 import 'package:christmas_project/MainPage/DesafioScreen.dart';
@@ -127,7 +128,23 @@ class _HomeState extends State<Home> {
                     onTap: desafios[index]
                         ? () {
                           switch (index){
-                            /*case 0:
+                            
+                            case 0:
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LockScreen(
+                                   desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                  totalSeconds: _totalSeconds,
+                                  timer: _timer,
+                                ),
+                              ),
+                            );
+
+
+
+                           /* case 0:
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -138,7 +155,7 @@ class _HomeState extends State<Home> {
                                   timer: _timer,
                                 ),
                               ),
-                            );
+                            );*/
                             case 1:
                               Navigator.push(
                               context,
@@ -174,12 +191,24 @@ class _HomeState extends State<Home> {
                                   timer: _timer,
                                 ),
                               ),
-                            );*/
-                            case 0:
+                            );
+                            case 4:
                               Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => DesafioCaminoQR(
+                                 desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                  totalSeconds: _totalSeconds,
+                                  timer: _timer,
+                                ),
+                              ),
+                            ); 
+                            case 5:
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DesafioSQL(
                                  desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
                                   totalSeconds: _totalSeconds,
