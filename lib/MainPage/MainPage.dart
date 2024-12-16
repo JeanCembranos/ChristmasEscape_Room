@@ -1,112 +1,128 @@
 import 'dart:async';
+import 'package:christmas_project/MainPage/Desafio10.dart';
 import 'package:christmas_project/MainPage/Desafio2Screen.dart';
 import 'package:christmas_project/MainPage/DesafioCaminoQR.dart';
 import 'package:christmas_project/MainPage/DesafioCofreCerrado.dart';
+import 'package:christmas_project/MainPage/DesafioCrucigrama.dart';
 import 'package:christmas_project/MainPage/DesafioLockScreen.dart';
 import 'package:christmas_project/MainPage/DesafioOSI.dart';
+import 'package:christmas_project/MainPage/DesafioPKT.dart';
 import 'package:christmas_project/MainPage/DesafioSQL.dart';
 import 'package:christmas_project/MainPage/DesafioScreen.dart';
+import 'package:christmas_project/Timer_Tools/TimeService.dart';
 import 'package:christmas_project/main.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
-  int _totalSeconds = 3600; // 1 hora = 3600 segundos
-  bool _isTimeUp = false; // Para saber si el tiempo se agotó
-  Timer? _timer; // Declaramos el Timer
+class _HomeState extends State<Home> with WidgetsBindingObserver{
   List<bool> desafios = List.generate(10, (index) => index == 0);
+  List<bool> desafios_Completados = List.generate(10, (index) => true);
   
-  @override
+   @override
   void initState() {
     super.initState();
-    _startTimer();
+    WidgetsBinding.instance.addObserver(this); // Observar el ciclo de vida de la app
+    // Accedemos al TimerService para iniciar el temporizador automáticamente
+    final timerService = Provider.of<TimerService>(context, listen: false);
+    
+    // Iniciamos el temporizador automáticamente cuando se carga la pantalla
+    if (!timerService.isTimerRunning) {
+      timerService.startTimer(
+        (totalSeconds) {
+          setState(() {}); // Actualizamos la pantalla cada vez que el temporizador cambie
+        },
+        () {
+          setState(() {
+            // El temporizador ha terminado
+          });
+        },
+      );
+    }
   }
-  
+
   @override
   void dispose() {
-    _timer?.cancel(); // Detener el temporizador cuando el widget se destruya
+    // Elimina el observador cuando el widget se dispose
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
+  
 
   void completarDesafio(int index) {
     setState(() {
       if (index < desafios.length - 1) {
         desafios[index + 1] = true;
+        desafios_Completados[index] = false;
       }
     });
   }
+   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final timerService = Provider.of<TimerService>(context, listen: false);
 
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      if (_totalSeconds > 0 && !_isTimeUp) {
-        setState(() {
-          _totalSeconds--;
-        });
-      } else if (!_isTimeUp) {
-        _timer?.cancel(); // Detener el temporizador cuando llegue a 0
-        setState(() {
-          _isTimeUp = true; // Indicar que el tiempo se agotó
-        });
-        _showTimeUpDialog(); // Mostrar un diálogo de "Tiempo agotado"
-      }
-    });
+    if (state == AppLifecycleState.resumed) {
+      // La app ha sido reanudada
+    } else if (state == AppLifecycleState.paused) {
+      // La app está en segundo plano (no es necesario detener el temporizador aquí)
+    }
   }
 
-  void _showTimeUpDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("¡Tiempo Agotado!"),
-        content: Text("El tiempo ha terminado. La app está bloqueada."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Cerrar el diálogo
-            },
-            child: Text("OK"),
-          ),
-        ],
-      ),
-    );
+  int contarDesafiosCompletados() {
+  int completados = 0;
+
+  for (int i = 0; i < desafios.length; i++) {
+    if (desafios[i] && !desafios_Completados[i]) {
+      completados++;
+    }
   }
 
-  String formatTime(int totalSeconds) {
-    int hours = totalSeconds ~/ 3600;
-    int minutes = (totalSeconds % 3600) ~/ 60;
-    int seconds = totalSeconds % 60;
+  return completados;
+}
 
-    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
-  }
 
   @override
   Widget build(BuildContext context) {
+    final timerService = Provider.of<TimerService>(context);
       return Scaffold(
         appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Desafío Navideño', style: TextStyle(color: Colors.white)),
-            // Contenedor que cambia de color según el estado del temporizador
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: _isTimeUp ? Colors.red : Colors.green, // Rojo si el tiempo se agotó, verde si no
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                formatTime(_totalSeconds),
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
+            backgroundColor: Colors.red,  // Fondo rojo
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.start,  // Alineamos todo hacia la izquierda
+              children: [
+                // Título
+                Text(
+                  'Desafío Navideño',
+                  style: TextStyle(color: Colors.white),  // Texto blanco
+                ),
+                // Espaciado entre el título y el contador
+                SizedBox(width: 100),  // Añade un pequeño espacio entre el texto y el contador
+                // Contador
+                Consumer<TimerService>(
+                  builder: (context, timerService, child) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),  // Añadir padding al contador
+                      decoration: BoxDecoration(
+                        color: timerService.isTimeUp ? Colors.red : Colors.green,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        timerService.formatTime(timerService.totalSeconds),
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-        backgroundColor: Colors.redAccent,
-      ),
-        body: Padding(
+          ),
+        body: PopScope(
+          canPop: false,
+          child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -125,46 +141,26 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   child: InkWell(
-                    onTap: desafios[index]
+                    onTap: desafios[index] && desafios_Completados[index]
                         ? () {
                           switch (index){
-                            
                             case 0:
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => LockScreen(
-                                   desafioIndex: index,
+                                builder: (context) => DesafioCofreCerrado(
+                                  desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
                                 ),
                               ),
                             );
-
-
-
-                           /* case 0:
-                            Navigator.push(
+                            case 1:
+                              Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => DesafioOSI(
                                   desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
-                                ),
-                              ),
-                            );*/
-                            case 1:
-                              Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Desafio1(
-                                  desafioIndex: index,
-                                  onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
                                 ),
                               ),
                             );
@@ -172,11 +168,9 @@ class _HomeState extends State<Home> {
                               Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Desafio2Screen(
+                                builder: (context) => DesafioSQL(
                                   desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
                                 ),
                               ),
                             );
@@ -184,11 +178,9 @@ class _HomeState extends State<Home> {
                               Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DesafioCofreCerrado(
+                                builder: (context) => LockScreen(
                                   desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
                                 ),
                               ),
                             );
@@ -199,8 +191,6 @@ class _HomeState extends State<Home> {
                                 builder: (context) => DesafioCaminoQR(
                                  desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
                                 ),
                               ),
                             ); 
@@ -208,17 +198,55 @@ class _HomeState extends State<Home> {
                               Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DesafioSQL(
+                                builder: (context) => DesafioPKTScreen(
                                  desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
-                                  totalSeconds: _totalSeconds,
-                                  timer: _timer,
+
                                 ),
                               ),
                             ); 
+                            case 6:
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Desafio2Screen(
+                                 desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                ),
+                              ),
+                            ); 
+                            case 7:
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SopaDeLetrasScreen(
+                                 desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                ),
+                              ),
+                            );
+                            case 8:
+                               Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Desafio1(
+                                 desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
+                                ),
+                              ),
+                            );
+                            case 9:
+                               Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FelicitacionScreen(
+                                  totalSeconds: timerService.totalSeconds,
+                                ),
+                              ),
+                            );
                           }
                           }
-                        : null,
+                        : desafios[index] && !desafios_Completados[index] ? null:null,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -227,14 +255,20 @@ class _HomeState extends State<Home> {
                           width: 50,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: desafios[index] ? Colors.green : Colors.grey,
+                            color: desafios[index] && !desafios_Completados[index] ? Colors.green : desafios[index] && desafios_Completados[index] ? Colors.yellow : Colors.grey,
                           ),
-                          child: desafios[index]
+                          child: desafios[index] && !desafios_Completados[index]
                               ? Icon(
                                   Icons.check,
                                   color: Colors.white,
                                   size: 40,
                                 )
+                                : desafios[index] && desafios_Completados[index] ?
+                                Icon(
+                                  Icons.timer,
+                                  color: Colors.white,
+                                  size: 40,
+                                ) 
                               : null,
                         ),
                         Container(
@@ -257,6 +291,62 @@ class _HomeState extends State<Home> {
             },
           ),
         ),
+        ),
+        floatingActionButton: timerService.isTimeUp
+        ? Stack(
+            children: [
+              // ModalBarrier para bloquear interacción
+              ModalBarrier(
+                dismissible: false, // Bloquea la interacción
+                color: Colors.black.withOpacity(0.7), // Color de la capa
+              ),
+              // Mostrar el AlertDialog cuando el tiempo se haya agotado
+              Center(
+                child: AlertDialog(
+                  title: Text("¡Tiempo agotado!", style: TextStyle(fontSize: 30.0)),
+                  content: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(
+                        "El tiempo ha terminado. No habéis podido salvar la navidad.\n",
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                      Container(
+                        alignment: Alignment.center,  // Centra el contenido dentro del container
+                        padding: EdgeInsets.all(16.0),  // Ajusta el padding si lo necesitas
+                        child: Image.asset(
+                          'assets/images/desafio_screen/reno.gif',  // Ruta del GIF en tus activos
+                          width: 150,  // Ancho del GIF
+                          height: 150, // Alto del GIF
+                          fit: BoxFit.contain, // Ajuste de la imagen
+                        ),
+                      ),
+                      Text("Detalles de Participación",style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),),
+                      Text(
+                        "Tiempo Empleado: 1:00 Hora",
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                       Text(
+                        "Desafíos Completados: ${contarDesafiosCompletados()}/10",
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                    ],
+                  ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        // No hay acción para cerrar, este botón solo sirve para mostrar el mensaje
+                      },
+                      child: Text("Aceptar"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
+        : null,  // Si el tiempo no ha terminado, no mostramos nada
       );
+      
   }
 }

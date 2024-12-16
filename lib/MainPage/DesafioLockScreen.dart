@@ -1,15 +1,15 @@
 import 'dart:async';
 
+import 'package:christmas_project/Timer_Tools/TimeService.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LockScreen extends StatefulWidget {
 
   final int desafioIndex;
   final VoidCallback onComplete;
-  int totalSeconds;
-  Timer? timer;
-
-  LockScreen({required this.desafioIndex, required this.onComplete,required this.timer,required this.totalSeconds});
+  
+  LockScreen({required this.desafioIndex, required this.onComplete});
 
 
   @override
@@ -17,6 +17,7 @@ class LockScreen extends StatefulWidget {
 }
 
 class _LockScreenState extends State<LockScreen> {
+  
   // Controladores para los TextFields
   final TextEditingController _controller1 = TextEditingController();
   final TextEditingController _controller2 = TextEditingController();
@@ -34,62 +35,126 @@ class _LockScreenState extends State<LockScreen> {
 
   // Código correcto
   final String _correctCode = "2597";
+  int intentos = 0;
+  bool _isTimeUp = false; // Para saber si el tiempo se agotó
+
+  @override
+  void initState() {
+    super.initState();
+     
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showChallengeDialog());
+    
+  }
+
+  // Método para mostrar un cuadro de ayuda
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Ayuda"),
+          content: Text("Debes enviar el primer intento de código para generar nuevas pistas\n\nTomar en cuenta que mas de un campo no puede contener el mismo número"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cerrar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // Función para verificar el código
   void _checkCode() {
-    String enteredCode = _controller1.text + _controller2.text + _controller3.text + _controller4.text;
+    String enteredCode = (_controller1.text.isEmpty ? '0' : _controller1.text) +
+                     (_controller2.text.isEmpty ? '0' : _controller2.text) +
+                     (_controller3.text.isEmpty ? '0' : _controller3.text) +
+                     (_controller4.text.isEmpty ? '0' : _controller4.text);
 
     // Limpiar las pistas anteriores antes de agregar una nueva
     setState(() {
       _hints.clear();
     });
-
+  
     // Verificar si el código ingresado es correcto
     if (enteredCode == _correctCode) {
       setState(() {
         widget.onComplete();
         Navigator.pop(context);
-        _hints.add("¡Código correcto! Has desbloqueado el candado.");
+        _showSuccessDialog();
       });
+
     } else {
+      // Esperar 1 segundo antes de generar las nuevas pistas
+    Future.delayed(Duration(seconds: 1), () {
       setState(() {
-        _hints.add(_generateHint(enteredCode));
+        // Generar una nueva pista después de 1 segundo
+        _hints.add(_generateHint(enteredCode)); 
+        intentos++; // Aumentar el número de intentos
       });
+    });
+  }
     }
+
+  void _showChallengeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¡Bienvenido al Desafío 4!'),
+        content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
+          child: Column(
+            children: [
+              Text(
+                "¡Buen trabajo, elfos! Habéis logrado restaurar el flujo de información, pero la misión aún no está completa. El villano ha dejado un enigma en forma de un código que es crucial para avanzar. Cada intento os dará nuevas pistas, pero sólo la combinación correcta abrirá el camino. Recordad: no todo es lo que parece, y cada error puede acercaros un paso más a la verdad. ¡La Navidad está en juego, no perdáis tiempo!",
+                style: TextStyle(fontSize: 20.0, fontStyle: FontStyle.italic),
+                textAlign: TextAlign.center,  // Centrar el texto para mejor apariencia
+              ),
+              SizedBox(height: 10),  // Espacio entre el texto y la imagen
+              Image.asset(
+                'assets/images/desafio_screen/codigo.gif',  // Ruta de la imagen de Papá Noel
+                width: 150,
+                height: 150,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Cerrar el diálogo
+            },
+            child: Text('Entendido'),
+          ),
+        ],
+      ),
+    );
   }
 
-  /*// Función para generar pistas basadas en el código ingresado
-  String _generateHint(String enteredCode) {
-    int correctCount = 0;
-    int misplacedCount = 0;
-    int incorrectCount = 0;
+   void _showSuccessDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("Felicidades!!",style: TextStyle(fontSize: 30.0),),
+      content: Text("¡Excelente trabajo! Habéis resuelto el misterio y recuperado una parte del Espíritu Navideño. Pero la misión aún no termina... ¡El villano sigue siendo una amenaza! Prepárense para el siguiente desafío, ¡la Navidad sigue dependiendo de vosotros! 🎅🎄",style: TextStyle(fontSize: 20.0),),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context); // Cerrar el diálogo
+            // Puedes colocar aquí cualquier lógica adicional, como avanzar a la siguiente pantalla o tarea
+            // Por ejemplo:
+          },
+          child: Text("Avanzar"),
+        ),
+      ],
+    ),
+  );
+}
 
-    for (int i = 0; i < enteredCode.length; i++) {
-      if (enteredCode[i] == _correctCode[i]) {
-        correctCount++;
-      } else if (_correctCode.contains(enteredCode[i])) {
-        misplacedCount++;
-      } else {
-        incorrectCount++;
-      }
-    }
 
-    // Crear el mensaje genérico
-    String hint = '';
-    if (correctCount > 0) {
-      hint += "$correctCount números correctos, ";
-    }
-    if (misplacedCount > 0) {
-      hint += "$misplacedCount números correctos pero en posición incorrecta, ";
-    }
-    if (incorrectCount > 0) {
-      hint += "$incorrectCount números incorrectos.";
-    }
-
-    return hint;
-  }*/
-
-// Función para generar pistas basadas en el código ingresado
+/*// Función para generar pistas basadas en el código ingresado
 String _generateHint(String enteredCode) {
   int correctCount = 0;
   int misplacedCount = 0;
@@ -144,7 +209,64 @@ String _generateHint(String enteredCode) {
   }
 
   return hint;
+}*/
+
+String _generateHint(String enteredCode) {
+  int correctCount = 0;
+  int misplacedCount = 0;
+  int incorrectCount = 0;
+
+  // Listas para hacer seguimiento de los números ya procesados
+  List<bool> countedAsCorrect = List.filled(enteredCode.length, false);
+  List<bool> countedInCorrectCode = List.filled(_correctCode.length, false);
+
+  // Primero, verificamos los números correctos en su lugar
+  for (int i = 0; i < enteredCode.length; i++) {
+    if (enteredCode[i] == _correctCode[i]) {
+      correctCount++;
+      countedAsCorrect[i] = true; // Marcar como ya contado
+      countedInCorrectCode[i] = true; // Marca la posición correcta ya validada
+    }
+  }
+
+  // Ahora verificamos los números en posición incorrecta
+  for (int i = 0; i < enteredCode.length; i++) {
+    if (enteredCode[i] != _correctCode[i] && _correctCode.contains(enteredCode[i])) {
+      // Buscar el número en el código correcto, pero solo si no ha sido contado como correcto
+      for (int j = 0; j < _correctCode.length; j++) {
+        if (_correctCode[j] == enteredCode[i] && !countedInCorrectCode[j] && !countedAsCorrect[i]) {
+          misplacedCount++;
+          countedInCorrectCode[j] = true; // Marcar la posición correcta ya validada
+          break; // Salir del ciclo una vez que se cuente el número en la posición incorrecta
+        }
+      }
+    }
+  }
+
+  // Finalmente, contamos los números incorrectos (los que no están en ninguna posición correcta o incorrecta)
+  for (int i = 0; i < enteredCode.length; i++) {
+    if (!countedAsCorrect[i] && !countedInCorrectCode[i]) {
+      incorrectCount++;
+    }
+  }
+
+  // Crear el mensaje genérico
+  String hint = '';
+  if (correctCount > 0) {
+    hint += "$correctCount número(s) correcto(s), ";
+  }
+  if (misplacedCount > 0) {
+    hint += "$misplacedCount número(s) correcto(s) pero en posición incorrecta, ";
+  }
+  if (incorrectCount > 0) {
+    hint += "$incorrectCount número(s) incorrecto(s).";
+  }
+
+  return hint;
 }
+
+
+
   @override
   void dispose() {
     // Limpiar los FocusNodes cuando ya no se usen
@@ -155,8 +277,21 @@ String _generateHint(String enteredCode) {
     super.dispose();
   }
 
+  // Función para verificar si hay números duplicados en los campos
+void _checkDuplicateNumber(String value, int index) {
+  List<TextEditingController> controllers = [_controller1, _controller2, _controller3, _controller4];
+
+  for (int i = 0; i < controllers.length; i++) {
+    if (i != index && controllers[i].text == value) {
+      // Si el valor es igual a otro campo, limpiar el campo actual
+      controllers[index].clear();
+      break; // No es necesario seguir buscando
+    }
+  }
+}
+
   // Widget para crear los TextFields
-  Widget _buildTextField(TextEditingController controller, FocusNode focusNode, FocusNode nextFocusNode) {
+  Widget _buildTextField(TextEditingController controller, FocusNode focusNode, FocusNode nextFocusNode, int index) {
     return Container(
       width: 50,
       height: 60,
@@ -177,29 +312,100 @@ String _generateHint(String enteredCode) {
           border: OutlineInputBorder(),
         ),
         onChanged: (value) {
-          // Si se ingresa un número, pasa al siguiente campo automáticamente
-          if (value.isNotEmpty) {
+        if (value.isNotEmpty) {
+          // Verificar si el número ya está en otro campo
+          _checkDuplicateNumber(value, index);
+
+          // Si no es el último campo, pasa al siguiente
+          if (nextFocusNode != null) {
             FocusScope.of(context).requestFocus(nextFocusNode);
           }
-        },
+        }
+      },
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final timerService = Provider.of<TimerService>(context);
+    if (timerService.isTimeUp && !_isTimeUp) {
+    // Diferir la ejecución de la lógica usando addPostFrameCallback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Actualizar el estado y cerrar la pantalla
+      setState(() {
+        _isTimeUp = true; // Marcar que el tiempo se agotó
+      });
+
+      // Cerrar la pantalla
+      Navigator.pop(context);  // Esto cerrará la pantalla
+    });
+  }
     return Scaffold(
       appBar: AppBar(
-        title: Text("Desafío del Candado", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.red,
-      ),
-      body: Center(
+          backgroundColor: Colors.red, // Fondo rojo
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // Título
+              Text(
+                "Desafio 4",
+                style: TextStyle(color: Colors.white), // Texto blanco
+              ),
+              // Espaciado flexible entre el título y el contador
+              Expanded(
+                child: Container(), // Expande el espacio restante para evitar que el contador se pegue al borde
+              ),
+              // Contador
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: timerService.isTimeUp ? Colors.red : Colors.green,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  timerService.formatTime(timerService.totalSeconds),
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
+            ],
+          ),
+        ),
+      body:Stack(
+        children: [
+          Positioned(
+            top: 40,
+            right: 20,
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: Colors.blue,
+              child: IconButton(
+                icon: Icon(Icons.help, color: Colors.white),
+                onPressed: _showHelpDialog,
+              ),
+            ),
+          ),
+
+          Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              const Text(
+                'Desafío 4: El código perdido',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              )
+            ]
+          )
+          ),
+
+          Center(
         child: Container(
           padding: EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Usamos un Stack para colocar los TextFields sobre la imagen del candado
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -220,13 +426,13 @@ String _generateHint(String enteredCode) {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildTextField(_controller1, _focusNode1, _focusNode2),
+                        _buildTextField(_controller1, _focusNode1, _focusNode2, 0),
                         SizedBox(width: 10),
-                        _buildTextField(_controller2, _focusNode2, _focusNode3),
+                        _buildTextField(_controller2, _focusNode2, _focusNode3, 1),
                         SizedBox(width: 10),
-                        _buildTextField(_controller3, _focusNode3, _focusNode4),
+                        _buildTextField(_controller3, _focusNode3, _focusNode4, 2),
                         SizedBox(width: 10),
-                        _buildTextField(_controller4, _focusNode4, _focusNode4), // El último campo no tiene siguiente
+                        _buildTextField(_controller4, _focusNode4, _focusNode4, 3), // El último campo no tiene siguiente
                       ],
                     ),
                   ),
@@ -255,6 +461,10 @@ String _generateHint(String enteredCode) {
           ),
         ),
       ),
+        ],
+      ) 
+
+      
     );
   }
 }
