@@ -19,6 +19,7 @@ class _Desafio2ScreenState extends State<Desafio2Screen> {
 
   bool _isTask1Expanded = true;
   bool _isTask2Expanded = true;
+  
 
   bool _isQRCodeDetected = false;
    String qrResult = ""; // Almacenar el resultado del escaneo

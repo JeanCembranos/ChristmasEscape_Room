@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:christmas_project/MainPage/Desafio10.dart';
 import 'package:christmas_project/Timer_Tools/TimeService.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,7 @@ class _Desafio1State extends State<Desafio1> {
   String _currentTime = '11:00 PM'; // Hora fija (11:00 PM)
   bool _isTimeUp = false; // Para saber si el tiempo se agotó
 
-  void _showSuccessDialog() {
+  void _showSuccessDialog(int totalSeconds) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -34,9 +35,14 @@ class _Desafio1State extends State<Desafio1> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context); // Cerrar el diálogo
-            // Puedes colocar aquí cualquier lógica adicional, como avanzar a la siguiente pantalla o tarea
-            // Por ejemplo:
+            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FelicitacionScreen(
+                                  totalSeconds: totalSeconds,
+                                ),
+                              ),
+                            );
           },
           child: Text("Avanzar"),
         ),
@@ -251,7 +257,7 @@ class _Desafio1State extends State<Desafio1> {
                   if (_isCorrect) {
                     Navigator.pop(context);
                     widget.onComplete();
-                    _showSuccessDialog();
+                    _showSuccessDialog(timerService.totalSeconds);
                   }
                 },
                 child: Text(

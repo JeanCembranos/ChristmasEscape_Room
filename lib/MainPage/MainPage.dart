@@ -7,6 +7,7 @@ import 'package:christmas_project/MainPage/DesafioCrucigrama.dart';
 import 'package:christmas_project/MainPage/DesafioLockScreen.dart';
 import 'package:christmas_project/MainPage/DesafioOSI.dart';
 import 'package:christmas_project/MainPage/DesafioPKT.dart';
+import 'package:christmas_project/MainPage/DesafioProgramacion.dart';
 import 'package:christmas_project/MainPage/DesafioSQL.dart';
 import 'package:christmas_project/MainPage/DesafioScreen.dart';
 import 'package:christmas_project/Timer_Tools/TimeService.dart';
@@ -229,7 +230,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
                                Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Desafio1(
+                                builder: (context) => DesafioDEV(
                                  desafioIndex: index,
                                   onComplete: () => completarDesafio(index),
                                 ),
@@ -239,8 +240,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver{
                                Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => FelicitacionScreen(
-                                  totalSeconds: timerService.totalSeconds,
+                                builder: (context) => Desafio1(
+                                  desafioIndex: index,
+                                  onComplete: () => completarDesafio(index),
                                 ),
                               ),
                             );
