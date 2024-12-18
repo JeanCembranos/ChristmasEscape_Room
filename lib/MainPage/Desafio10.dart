@@ -46,7 +46,9 @@ class _FelicitacionScreenState extends State<FelicitacionScreen> {
         title: Text('La Misión de Santa'),
         backgroundColor: Colors.green,
       ),
-      body: Center(
+      body: PopScope(
+        canPop: false,
+        child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -110,6 +112,8 @@ class _FelicitacionScreenState extends State<FelicitacionScreen> {
           ],
         ),
       ),
+      )
+      
     );
   }
 }

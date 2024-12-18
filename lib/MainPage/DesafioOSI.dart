@@ -24,6 +24,7 @@ class _ChristmasTreeScreenState extends State<DesafioOSI> {
   int _errorCount = 0; // Contador de errores
   int _errorPenalty = 0;
   bool _isTimeUp = false; // Para saber si el tiempo se agotó
+  bool _isDialogOpen = false;
 
   // Orden de las capas del modelo OSI de mayor a menor
   final Map<String, String> correctOrder = {
@@ -99,6 +100,7 @@ void dispose() {
 
   // Función para mostrar el diálogo de penalización
   void _showPenaltyDialog() {
+    _isDialogOpen = true;
     setState(() {
       _isPenaltyDialogVisible = true;
     });
@@ -113,7 +115,7 @@ void dispose() {
           child: AlertDialog(
           title: Text('¡Penalización!'),
           content: Text(
-            'Has cometido 3 errores. Deberás esperar 15 segundos para continuar.',
+            'Has cometido 3 errores. Deberás esperar 45 segundos para continuar.',
             style: TextStyle(fontSize: 18),
           ),
         ),
@@ -123,8 +125,9 @@ void dispose() {
     );
 
     // Iniciar el temporizador de penalización de 15 segundos
-    _penaltyTimer = Timer(Duration(seconds: 15), () {
+    _penaltyTimer = Timer(Duration(seconds: 45), () {
       // Cerrar el diálogo de penalización después de 15 segundos
+      _isDialogOpen = false;
       Navigator.of(context).pop();
       setState(() {
         _isPenaltyDialogVisible = false;
@@ -208,9 +211,13 @@ void dispose() {
 
   // Mostrar el diálogo de bienvenida del desafío
   void _showChallengeDialog() {
+    _isDialogOpen = true;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: false,
+      builder: (context) => PopScope( 
+        canPop: false,
+      child: AlertDialog(
         title: Text('¡Bienvenido al Desafío 2!'),
         content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
           child: Column(
@@ -232,12 +239,14 @@ void dispose() {
         actions: [
           TextButton(
             onPressed: () {
+              _isDialogOpen = false;
               Navigator.pop(context); // Cerrar el diálogo
             },
             child: Text('Entendido'),
           ),
         ],
       ),
+      )
     );
   }
 
@@ -297,15 +306,18 @@ void dispose() {
   Widget build(BuildContext context) {
     final timerService = Provider.of<TimerService>(context);
     if (timerService.isTimeUp && !_isTimeUp) {
-    // Diferir la ejecución de la lógica usando addPostFrameCallback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Actualizar el estado y cerrar la pantalla
       setState(() {
         _isTimeUp = true; // Marcar que el tiempo se agotó
       });
 
-      // Cerrar la pantalla
-      Navigator.pop(context);  // Esto cerrará la pantalla
+      if(_isDialogOpen){
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else{
+        Navigator.pop(context);
+      }
     });
   }
     return Scaffold(

@@ -35,6 +35,7 @@ class _LockScreenState extends State<LockScreen> {
 
   // Código correcto
   final String _correctCode = "2597";
+  bool _isDialogOpen = false;
   int intentos = 0;
   bool _isTimeUp = false; // Para saber si el tiempo se agotó
 
@@ -100,9 +101,13 @@ class _LockScreenState extends State<LockScreen> {
     }
 
   void _showChallengeDialog() {
+    _isDialogOpen = true;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+      canPop: false,
+      child: AlertDialog(
         title: Text('¡Bienvenido al Desafío 4!'),
         content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
           child: Column(
@@ -124,12 +129,14 @@ class _LockScreenState extends State<LockScreen> {
         actions: [
           TextButton(
             onPressed: () {
+              _isDialogOpen = false;
               Navigator.pop(context); // Cerrar el diálogo
             },
             child: Text('Entendido'),
           ),
         ],
       ),
+      )
     );
   }
 
@@ -152,64 +159,6 @@ class _LockScreenState extends State<LockScreen> {
     ),
   );
 }
-
-
-/*// Función para generar pistas basadas en el código ingresado
-String _generateHint(String enteredCode) {
-  int correctCount = 0;
-  int misplacedCount = 0;
-  int incorrectCount = 0;
-
-  // Listas para hacer seguimiento de los números ya procesados
-  List<bool> countedAsCorrect = List.filled(enteredCode.length, false);
-  List<bool> countedAsMisplaced = List.filled(enteredCode.length, false);
-  List<bool> countedInCorrectCode = List.filled(_correctCode.length, false);
-
-  // Primero, verificamos los números correctos en su lugar
-  for (int i = 0; i < enteredCode.length; i++) {
-    if (enteredCode[i] == _correctCode[i]) {
-      correctCount++;
-      countedAsCorrect[i] = true; // Marcar como ya contado
-      countedInCorrectCode[i] = true; // Marca la posición correcta ya validada
-    }
-  }
-
-  // Ahora verificamos los números en posición incorrecta
-  for (int i = 0; i < enteredCode.length; i++) {
-    if (enteredCode[i] != _correctCode[i] && _correctCode.contains(enteredCode[i])) {
-      // Buscar el número en el código correcto, pero solo si no ha sido contado como correcto
-      for (int j = 0; j < _correctCode.length; j++) {
-        if (_correctCode[j] == enteredCode[i] && !countedInCorrectCode[j] && !countedAsMisplaced[j]) {
-          misplacedCount++;
-          countedAsMisplaced[i] = true; // Marcar como ya contado como "en posición incorrecta"
-          countedInCorrectCode[j] = true; // Marcar la posición correcta ya validada
-          break; // Salir del ciclo una vez que se cuente el número en la posición incorrecta
-        }
-      }
-    }
-  }
-
-  // Finalmente, contamos los números incorrectos
-  for (int i = 0; i < enteredCode.length; i++) {
-    if (!countedAsCorrect[i] && !countedAsMisplaced[i]) {
-      incorrectCount++;
-    }
-  }
-
-  // Crear el mensaje genérico
-  String hint = '';
-  if (correctCount > 0) {
-    hint += "$correctCount número(s) correcto(s), ";
-  }
-  if (misplacedCount > 0) {
-    hint += "$misplacedCount número(s) correcto(s) pero en posición incorrecta, ";
-  }
-  if (incorrectCount > 0) {
-    hint += "$incorrectCount número(s) incorrecto(s).";
-  }
-
-  return hint;
-}*/
 
 String _generateHint(String enteredCode) {
   int correctCount = 0;
@@ -330,15 +279,18 @@ void _checkDuplicateNumber(String value, int index) {
   Widget build(BuildContext context) {
     final timerService = Provider.of<TimerService>(context);
     if (timerService.isTimeUp && !_isTimeUp) {
-    // Diferir la ejecución de la lógica usando addPostFrameCallback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Actualizar el estado y cerrar la pantalla
       setState(() {
         _isTimeUp = true; // Marcar que el tiempo se agotó
       });
 
-      // Cerrar la pantalla
-      Navigator.pop(context);  // Esto cerrará la pantalla
+      if(_isDialogOpen){
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else{
+        Navigator.pop(context);
+      }
     });
   }
     return Scaffold(

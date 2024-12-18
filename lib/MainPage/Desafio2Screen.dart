@@ -19,7 +19,7 @@ class _Desafio2ScreenState extends State<Desafio2Screen> {
 
   bool _isTask1Expanded = true;
   bool _isTask2Expanded = true;
-  
+  bool _isDialogOpen = false;
 
   bool _isQRCodeDetected = false;
    String qrResult = ""; // Almacenar el resultado del escaneo
@@ -41,9 +41,13 @@ class _Desafio2ScreenState extends State<Desafio2Screen> {
     }
 
 void _showChallengeDialog() {
+  _isDialogOpen = true;
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
+    barrierDismissible: false,
+    builder: (context) => PopScope(
+      canPop: false,
+    child: AlertDialog(
       title: Text('¡Bienvenido al Desafío 7!'),
       content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
         child: Column(
@@ -65,6 +69,7 @@ void _showChallengeDialog() {
       actions: [
         TextButton(
           onPressed: () {
+            _isDialogOpen = false;
             Navigator.pop(context); // Cerrar el diálogo
             _showFloatingIcon();
           },
@@ -72,6 +77,7 @@ void _showChallengeDialog() {
         ),
       ],
     ),
+    )
   );
 }
 
@@ -143,15 +149,18 @@ void _showChallengeDialog() {
   Widget build(BuildContext context) {  
     final timerService = Provider.of<TimerService>(context);  
     if (timerService.isTimeUp && !_isTimeUp) {
-    // Diferir la ejecución de la lógica usando addPostFrameCallback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Actualizar el estado y cerrar la pantalla
       setState(() {
         _isTimeUp = true; // Marcar que el tiempo se agotó
       });
 
-      // Cerrar la pantalla
-      Navigator.pop(context);  // Esto cerrará la pantalla
+      if(_isDialogOpen){
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else{
+        Navigator.pop(context);
+      }
     });
   }
       return Scaffold(
@@ -244,7 +253,7 @@ void _showChallengeDialog() {
         ListTile(
           title: Text(''),
           subtitle: Text(
-              'En el directorio "Documentos" encontrarás una carpeta con el nombre "Archivos_Santa"\nLa ves? Es especial, si la buscas la encontrarás\nCuando resuelvas el misterio, ingresa el código que contiene aquí'),
+              'En el directorio "Documentos" encontrarás una carpeta con el nombre "Archivos_Santa"\nLa ves? Es especial, si la buscas la encontrarás\nCuando resuelvas el misterio, ingresa el código que contiene, aquí'),
         ),
         Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -288,10 +297,16 @@ void _showChallengeDialog() {
                   widget.onComplete();
                   Navigator.pop(context);
                   _showSuccessDialog();
-                  /*Future.delayed(Duration(milliseconds: 300), () {
-                    Navigator.pop(context); // Esto cierra la ventana del desafío
-                  });*/
-                } else {
+                  
+                } else if (_controller.text.toLowerCase() == "urvfduhbhv"){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Lo has encontrado, pero le falta algo.....Intenta desencriptarlo\nC_3_Izq'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 10), // Duración de 5 segundos
+                    ),
+                );
+                }else{
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Código Incorrecto. Intenta nuevamente'),

@@ -16,7 +16,7 @@ class DesafioDEV extends StatefulWidget {
 
 class _Desafio2ScreenState extends State<DesafioDEV> {
   bool _isTask1Visible = true;
-  bool _isTask2Visible = true;
+  bool _isTask2Visible = false;
   bool _isTask1Expanded = true;
   bool _isTask2Expanded = true;
 
@@ -62,7 +62,7 @@ class _Desafio2ScreenState extends State<DesafioDEV> {
       setState(() {
         _isMayorCantidadCaracteresCorrect = false;
       });
-      return 'Debe ser 23';
+      return 'Cantidad Incorrecta';
     }
   }
 
@@ -76,7 +76,7 @@ class _Desafio2ScreenState extends State<DesafioDEV> {
       setState(() {
         _isCantidadTotalRegalosCorrect = false;
       });
-      return 'Debe ser 112';
+      return 'Cantidad Incorrecta';
     }
   }
 
@@ -90,7 +90,7 @@ class _Desafio2ScreenState extends State<DesafioDEV> {
       setState(() {
         _isCantidadTotalUsuariosCorrect = false;
       });
-      return 'Debe ser 121';
+      return 'Cantidad Incorrecta';
     }
   }
 
@@ -104,7 +104,7 @@ class _Desafio2ScreenState extends State<DesafioDEV> {
       setState(() {
         _isSumaTotalCaracteresCorrect = false;
       });
-      return 'Debe ser 1156';
+      return 'Cantidad Incorrecta';
     }
   }
   void _showLoginDialog(BuildContext context) {

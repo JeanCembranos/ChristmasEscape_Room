@@ -22,6 +22,7 @@ class _ChallengeScreenState extends State<DesafioCofreCerrado> {
   bool _isTask1Visible = true;
   bool _isTask2Visible = false;
   bool _isTimeUp = false;
+  bool _isDialogOpen = false;
   // Variable para almacenar la respuesta ingresada
   bool _showFloatingButton = false;
   final TextEditingController _controller = TextEditingController();
@@ -42,9 +43,13 @@ class _ChallengeScreenState extends State<DesafioCofreCerrado> {
 
 
     void _showChallengeDialog() {
+  _isDialogOpen = true;
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
+    barrierDismissible: false,
+    builder: (context) => PopScope(
+      canPop: false,
+    child: AlertDialog(
       title: Text('¡Bienvenido al Desafío 1!'),
       content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
         child: Column(
@@ -66,6 +71,7 @@ class _ChallengeScreenState extends State<DesafioCofreCerrado> {
       actions: [
         TextButton(
           onPressed: () {
+            _isDialogOpen = false;
             Navigator.pop(context); // Cerrar el diálogo
             _showFloatingIcon();
           },
@@ -73,6 +79,7 @@ class _ChallengeScreenState extends State<DesafioCofreCerrado> {
         ),
       ],
     ),
+    )
   );
 }
 // Función para mostrar el ícono flotante
@@ -108,7 +115,7 @@ class _ChallengeScreenState extends State<DesafioCofreCerrado> {
         SnackBar(
           content: Text('Incorrecto. Intenta transformar el código para encontrar el valor correcto.'),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 5), // Duración de 5 segundos
+          duration: Duration(seconds: 2), // Duración de 5 segundos
         ),
     );
     }
@@ -224,15 +231,18 @@ Widget _buildNumberField(int index) {
 Widget build(BuildContext context) {
   final timerService = Provider.of<TimerService>(context);
   if (timerService.isTimeUp && !_isTimeUp) {
-    // Diferir la ejecución de la lógica usando addPostFrameCallback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Actualizar el estado y cerrar la pantalla
       setState(() {
         _isTimeUp = true; // Marcar que el tiempo se agotó
       });
 
-      // Cerrar la pantalla
-      Navigator.pop(context);  // Esto cerrará la pantalla
+      if(_isDialogOpen){
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else{
+        Navigator.pop(context);
+      }
     });
   }
   return Scaffold(
@@ -298,7 +308,7 @@ Widget build(BuildContext context) {
                         children: [
                           ListTile(
                             subtitle: Text(
-                              '"Busca donde el vidrio se encuentra con el marco,\nEn un rincón donde no se mira a simple vista.\nEl código está oculto entre las esquinas,\nSolo allí encontrarás lo que buscas."',
+                              '"Busca donde el cristal se encuentra con el marco,\nEn un rincón donde no se mira a simple vista.\nEl código está oculto entre las esquinas,\nSolo allí encontrarás lo que buscas."',
                               style: TextStyle(fontStyle: FontStyle.italic),
                             ),
                           ),
@@ -349,7 +359,7 @@ Widget build(BuildContext context) {
           ),
         ),
         // Si el tiempo se ha agotado, mostrar una capa bloqueadora
-        if (timerService.isTimeUp)
+        /*if (timerService.isTimeUp)
           ModalBarrier(
             dismissible: false, // Bloquea la interacción
             color: Colors.black.withOpacity(0.7), // Color de la capa
@@ -375,7 +385,7 @@ Widget build(BuildContext context) {
                 ),
               ],
             ),
-          ),
+          ),*/
       ],
     ),
   );

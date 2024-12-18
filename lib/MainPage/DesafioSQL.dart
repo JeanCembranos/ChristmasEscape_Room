@@ -26,6 +26,7 @@ class _ChallengeScreenState extends State<DesafioSQL> {
   final FocusNode _focusNode3 = FocusNode();
 
   String _resultMessage = '';
+  bool _isDialogOpen = false;
   bool _isTimeUp = false; // Para saber si el tiempo se agotó
 
   // Clave secreta correcta (por ejemplo, 156)
@@ -84,9 +85,13 @@ class _ChallengeScreenState extends State<DesafioSQL> {
 
 // Mostrar el diálogo de bienvenida del desafío
   void _showChallengeDialog() {
+    _isDialogOpen = true;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false, 
+      child: AlertDialog(
         title: Text('¡Bienvenido al Desafío 3!'),
         content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
           child: Column(
@@ -108,12 +113,14 @@ class _ChallengeScreenState extends State<DesafioSQL> {
         actions: [
           TextButton(
             onPressed: () {
+              _isDialogOpen = false;
               Navigator.pop(context); // Cerrar el diálogo
             },
             child: Text('Entendido'),
           ),
         ],
       ),
+      )
     );
   }
 
@@ -156,7 +163,7 @@ class _ChallengeScreenState extends State<DesafioSQL> {
                   SnackBar(
                     content: Text('Credenciales Erróneas. No se ha podido marcar como completado'),
                     backgroundColor: Colors.red,
-                    duration: Duration(seconds: 5), // Duración de 5 segundos
+                    duration: Duration(seconds: 2), // Duración de 5 segundos
                   ),
                 );
                 }
@@ -173,15 +180,18 @@ class _ChallengeScreenState extends State<DesafioSQL> {
   Widget build(BuildContext context) {
     final timerService = Provider.of<TimerService>(context);
     if (timerService.isTimeUp && !_isTimeUp) {
-    // Diferir la ejecución de la lógica usando addPostFrameCallback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Actualizar el estado y cerrar la pantalla
       setState(() {
         _isTimeUp = true; // Marcar que el tiempo se agotó
       });
 
-      // Cerrar la pantalla
-      Navigator.pop(context);  // Esto cerrará la pantalla
+      if(_isDialogOpen){
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else{
+        Navigator.pop(context);
+      }
     });
   }
     return Scaffold(
@@ -231,7 +241,7 @@ class _ChallengeScreenState extends State<DesafioSQL> {
             ),
             const SizedBox(height: 10),
             const Text(
-              'Santa necesita saber el coste promedio de los regalos caros '
+              'Se necesita saber el coste promedio de los regalos caros '
               '(mayores a 50) en los departamentos de "REGALOS" y "LISTAS". '
               'Además, debes contar cuántos regalos cumplen con este criterio. '
               'Con estos dos valores, calcula el producto entre el coste promedio y la cantidad total de regalos, '
@@ -249,8 +259,12 @@ class _ChallengeScreenState extends State<DesafioSQL> {
             leading: Icon(Icons.star),
             children: [
               ListTile(
-                subtitle: Text('Las tablas para el desafío están guardadas en la carpeta "Descargas", tendrás que cargarlas en SQL_PLUS.\nLas credenciales para iniciar sesión son:\nUsername: navidad\nPassword:navidad'),
+                subtitle: Text('* Pregunta a los organizadores por el ordenador que contiene los ficheros para este desafío\n* Las credenciales de acceso a SQL_PLUS son: navidad/navidad (Si necesitas ayuda para acceder, pídela)\n* Tienes dos tablas: REGALOS y DEPARTAMENTOS'),
               ),
+              Text('Funciones Importantes para el Desarrollo:',style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('AVG() -> Obtener Promedio de varios números-------------------'),
+              Text('COUNT() -> Obtiene la cantidad de elementos que cumplen con una condición'),
+              Text('ROUND() -> Redondea los decimales de un número para obtener una cantidad entera'),
             ],
           ),
         ]
@@ -311,7 +325,7 @@ class _ChallengeScreenState extends State<DesafioSQL> {
                 ),
               ],
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 20),
             // Botón para verificar la clave
             Center(
               child: ElevatedButton(

@@ -33,6 +33,7 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
   bool _isTask2Expanded = false;
   bool _isTask3Expanded = false;
   bool _isTask4Expanded = false;
+  bool _isDialogOpen = false;
    @override
   void initState() {
     super.initState();
@@ -41,9 +42,13 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
 
 
   void _showChallengeDialog() {
+    _isDialogOpen = true;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+      canPop: false,
+      child: AlertDialog(
         title: Text('¡Bienvenido al Desafío 5!'),
         content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
           child: Column(
@@ -65,12 +70,14 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
         actions: [
           TextButton(
             onPressed: () {
+              _isDialogOpen = false;
               Navigator.pop(context); // Cerrar el diálogo
             },
             child: Text('Entendido'),
           ),
         ],
       ),
+      )
     );
   }
 
@@ -113,7 +120,7 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
                   SnackBar(
                     content: Text('Credenciales Erróneas. No se ha podido marcar como completado'),
                     backgroundColor: Colors.red,
-                    duration: Duration(seconds: 5), // Duración de 5 segundos
+                    duration: Duration(seconds: 2), // Duración de 5 segundos
                   ),
                 );
                 }
@@ -129,16 +136,19 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
   @override
   Widget build(BuildContext context) {
     final timerService = Provider.of<TimerService>(context);
-    if (timerService.isTimeUp && !_isTimeUp) {
-    // Diferir la ejecución de la lógica usando addPostFrameCallback
+   if (timerService.isTimeUp && !_isTimeUp) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Actualizar el estado y cerrar la pantalla
       setState(() {
         _isTimeUp = true; // Marcar que el tiempo se agotó
       });
 
-      // Cerrar la pantalla
-      Navigator.pop(context);  // Esto cerrará la pantalla
+      if(_isDialogOpen){
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else{
+        Navigator.pop(context);
+      }
     });
   }
     return Scaffold(
@@ -185,7 +195,7 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
             ExpansionTile(
               title: Text('Pista 1'),
               children: [
-                Text('En la noche fría de Navidad, Santa se asegura de estar bien abrigado. Entre sus prendas, cuelga algo que siempre está a la vista. Para encontrar lo que buscas, no olvides que todo lo que necesitas para abrigarte, lo puedes colgar aquí. Busca donde lo que cuelga es parte de lo que más se usa en esta época del año.\nSi crees haber encontrado el código, escanéalo'),
+                Text('Busca un lugar donde lo que se usa para escribir y borrar está a la vista. Lo que buscas se esconde ahí, en un objeto que te ayuda a borrar lo escrito.\nSi crees haber encontrado el código, escanéalo.'),
                 ElevatedButton(
                   onPressed: () {
                     _openQRCodeScanner();
@@ -231,7 +241,7 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
             ExpansionTile(
               title: Text('Pista 2'),
               children: [
-                Text('En el aula, el conocimiento se comparte, pero el maestro sabe que su sabiduría está cerca de su silla. No está sobre la mesa, pero sí bajo ella, donde descansa lo que ayuda a enseñar sin parar.\nSi crees haber encontrado el código, escanéalo'),
+                Text('En el aula, el conocimiento se comparte, pero el maestro sabe que su sabiduría está cerca de su silla. No está sobre la mesa, pero sí bajo ella, donde descansa lo que ayuda a enseñar sin parar.\nSi crees haber encontrado el código, escanéalo.'),
                 ElevatedButton(
                   onPressed: () {
                     _openQRCodeScanner();
@@ -319,7 +329,7 @@ class _DesafioScreenState extends State<DesafioCaminoQR> {
             ExpansionTile(
               title: Text('Pista 4'),
               children: [
-                Text('Al final del camino, te encontrarás con una barrera, un obstáculo que te detiene antes de continuar. No está al frente, ni sobre lo que ves, busca en lo que te bloquea el paso, y la solución encontrarás.\nSi crees haber encontrado el código, escanéalo'),
+                Text('Al final del camino, te encontrarás con una barrera, un obstáculo que te detiene antes de continuar. No está al frente, ni sobre lo que ves, busca en lo que te bloquea el paso, y la solución encontrarás.\nSi crees haber encontrado el código, escanéalo.'),
                 ElevatedButton(
                   onPressed: () {
                     _openQRCodeScanner();
@@ -441,7 +451,7 @@ void _handleQRCodeResult(BarcodeCapture barcodeCapture) {
   void _showMiniChallenge1Dialog() {
   // Controlador para la respuesta del usuario
   TextEditingController answerController = TextEditingController();
-
+  _isDialogOpen = true;
   showDialog(
     context: context,
     barrierDismissible: false, // Impide que el diálogo se cierre tocando fuera de él
@@ -468,11 +478,12 @@ void _handleQRCodeResult(BarcodeCapture barcodeCapture) {
                 TextButton(
                   onPressed: () {
                     // Obtener la respuesta del usuario
+                    
                     String userAnswer = answerController.text.trim();
                     String correctAnswer = '11010'; // Convierte 26 a binario
-
                     // Verificar si la respuesta es correcta
                     if (userAnswer == correctAnswer) {
+                      _isDialogOpen = false;
                       // Si es correcta, mostrar un diálogo de éxito
                       _isTask1Expanded = false;
                       _isTask2Expanded = true;
@@ -485,7 +496,7 @@ void _handleQRCodeResult(BarcodeCapture barcodeCapture) {
                         SnackBar(
                           content: Text('Incorrecto. Inténtalo nuevamente'),
                           backgroundColor: Colors.red,
-                          duration: Duration(seconds: 5), // Duración de 5 segundos
+                          duration: Duration(seconds: 2), // Duración de 5 segundos
                         ),
                       );
                     }
@@ -503,7 +514,7 @@ void _handleQRCodeResult(BarcodeCapture barcodeCapture) {
 void _showMiniChallenge2Dialog() {
   // Controlador para la opción seleccionada
   String selectedOption = "";
-
+  _isDialogOpen = true;
   showDialog(
     context: context,
     barrierDismissible: false, // Evitar que el diálogo se cierre tocando fuera de él
@@ -566,6 +577,7 @@ void _showMiniChallenge2Dialog() {
                     // Verificar si la respuesta es correcta
                     if (selectedOption == "32") {
                       // Si es correcta, cerrar el diálogo
+                      _isDialogOpen = false;
                       _isTask2Expanded = false;
                       _isTask3Expanded = true;
                       Navigator.pop(context);
@@ -594,7 +606,7 @@ void _showMiniChallenge2Dialog() {
 
 void _showMiniChallenge3Dialog() {
   String _selectedOption = "";
-
+  _isDialogOpen = true;
   showDialog(
     context: context,
     barrierDismissible: false, // Impide que el diálogo se cierre tocando fuera de él
@@ -665,6 +677,7 @@ void _showMiniChallenge3Dialog() {
                   onPressed: () {
                     if (_selectedOption == '255.255.255.0') {
                       // Respuesta correcta
+                      _isDialogOpen = false;
                       _isTask3Expanded = false;
                       _isTask4Expanded = true;
                       Navigator.pop(context); // Cierra el diálogo si es correcto
@@ -692,7 +705,7 @@ void _showMiniChallenge3Dialog() {
 
 void _showMiniChallenge4Dialog() {
   String _selectedOption = "";
-
+  _isDialogOpen = true;
   showDialog(
     context: context,
     barrierDismissible: false, // Impide que el diálogo se cierre tocando fuera de él
@@ -762,6 +775,7 @@ void _showMiniChallenge4Dialog() {
                 TextButton(
                   onPressed: () {
                     if (_selectedOption == 'Pila (Stack)') {
+                      _isDialogOpen = false;
                       // Respuesta correcta
                       Navigator.pop(context);
                       _showCompletionDialog();
@@ -787,6 +801,7 @@ void _showMiniChallenge4Dialog() {
   );
 }
 void _showCompletionDialog() {
+  _isDialogOpen = true;
   showDialog(
     context: context,
     barrierDismissible: false, // Impide cerrar tocando fuera del diálogo
@@ -799,6 +814,7 @@ void _showCompletionDialog() {
           actions: [
             TextButton(
               onPressed: () {
+                _isDialogOpen = false;
                 widget.onComplete();
                 Navigator.pop(context); // Cierra el diálogo y regresa a la pantalla anterior
                 Navigator.pop(context);

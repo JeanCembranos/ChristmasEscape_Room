@@ -21,7 +21,7 @@ class _Desafio2ScreenState extends State<DesafioPKTScreen> {
   bool _isTask1Visible = true;
   bool _isTask2Visible = false;
   bool _isTimeUp = false; // Para saber si el tiempo se agotó
-
+  bool _isDialogOpen = false;
   bool _isTask1Expanded = true;
   bool _isTask2Expanded = true;
 
@@ -39,9 +39,13 @@ class _Desafio2ScreenState extends State<DesafioPKTScreen> {
     }
 
      void _showChallengeDialog() {
+      _isDialogOpen = true;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false, 
+      child: AlertDialog(
         title: Text('¡Bienvenido al Desafío 6!'),
         content: SingleChildScrollView(  // Permite que el contenido se desplace si es largo
           child: Column(
@@ -63,12 +67,14 @@ class _Desafio2ScreenState extends State<DesafioPKTScreen> {
         actions: [
           TextButton(
             onPressed: () {
+              _isDialogOpen = false;
               Navigator.pop(context); // Cerrar el diálogo
             },
             child: Text('Entendido'),
           ),
         ],
       ),
+      )
     );
   }
 
@@ -148,15 +154,18 @@ class _Desafio2ScreenState extends State<DesafioPKTScreen> {
   Widget build(BuildContext context) {
     final timerService = Provider.of<TimerService>(context);    
     if (timerService.isTimeUp && !_isTimeUp) {
-    // Diferir la ejecución de la lógica usando addPostFrameCallback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Actualizar el estado y cerrar la pantalla
       setState(() {
         _isTimeUp = true; // Marcar que el tiempo se agotó
       });
 
-      // Cerrar la pantalla
-      Navigator.pop(context);  // Esto cerrará la pantalla
+      if(_isDialogOpen){
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else{
+        Navigator.pop(context);
+      }
     });
   }
       return Scaffold(
@@ -262,7 +271,7 @@ class _Desafio2ScreenState extends State<DesafioPKTScreen> {
             child: TextField(
               controller: _controller,  // Este es el controlador para capturar el texto
               decoration: InputDecoration(
-                labelText: 'Ingresa la contraseña',
+                labelText: 'Ingresa la código encontrado',
                 labelStyle: TextStyle(color: Colors.redAccent), // Color del texto del label
                 filled: true,  // Fondo relleno
                 fillColor: Colors.grey[200], // Color de fondo del TextField
@@ -298,13 +307,13 @@ class _Desafio2ScreenState extends State<DesafioPKTScreen> {
                     SnackBar(
                       content: Text('Código Incorrecto. Intenta nuevamente'),
                       backgroundColor: Colors.red,
-                      duration: Duration(seconds: 5), // Duración de 5 segundos
+                      duration: Duration(seconds: 2), // Duración de 5 segundos
                     ),
                 );
                 }
               },
                 
-              child: Text('Enviar Contraseña'),
+              child: Text('Enviar Código'),
               style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent, // Color del fondo del botón
               foregroundColor: Colors.white, // Color del texto en el botón
