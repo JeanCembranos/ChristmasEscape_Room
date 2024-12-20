@@ -1,16 +1,8 @@
-# christmas_project
+This project involves the development of a Christmas Escape Room within a mobile application built using Flutter. The app features 10 challenges focused on areas such as networking, operating systems, databases, and logic, designed to test participants' technical knowledge through a series of puzzles and interactive exercises.
 
-A new Flutter project.
+The app includes a timer that manages the completion of the set time limits for each challenge, providing a dynamic and controlled experience. Additionally, the system allows tracking the participants' progress, ensuring a structured and challenging gameplay environment.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
+This project integrates concepts of programming logic, interface design, and time management, offering users an educational and entertaining experience.
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
